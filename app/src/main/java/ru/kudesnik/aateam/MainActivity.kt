@@ -3,15 +3,15 @@ package ru.kudesnik.aateam
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import android.webkit.CookieManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Button
 import android.widget.FrameLayout
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isEmpty
 import ru.kudesnik.aateam.webview.MyWebViewClient
 
 
@@ -24,52 +24,43 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
-        val url = "https://socloseslots.ru/y6D1QQSR"
-        val url2 = "https://yandex.ru/"
+        val urlMain = "https://socloseslots.ru/y6D1QQSR"
+        val urlTest = "https://yandex.ru/"
+
         containerButton = findViewById(R.id.containerButton)
         webView = findViewById(R.id.webView)
+
         val buttonStart = findViewById<Button>(R.id.buttonStart)
         webView.webViewClient = MyWebViewClient()
-        // включаем поддержку JavaScript
-        webView.getSettings().setJavaScriptEnabled(true)
-        // указываем страницу загрузки
 
-        webView.loadUrl(url)
+        loadUrlInWebView(urlTest)
 
         webView.webViewClient = object : WebViewClient() {
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 super.onPageStarted(view, url, favicon)
-                Toast.makeText(this@MainActivity, "Loading", Toast.LENGTH_SHORT).show()
-
             }
 
             override fun onPageFinished(view: WebView, url: String) {
-                if (webView.isEmpty()) {
-                    Toast.makeText(this@MainActivity, "Empty", Toast.LENGTH_SHORT).show()
-                    containerButton.visibility = View.VISIBLE
-                    webView.visibility = View.GONE
-                } else {
-                    Toast.makeText(this@MainActivity, "NOT Empty", Toast.LENGTH_SHORT).show()
-
-                    containerButton.visibility = View.GONE
-                    webView.visibility = View.VISIBLE
+                webView.evaluateJavascript(
+                    "(function() { return ('<html>'+document.getElementsByTagName('body')[0].innerHTML+'</html>'); })();"
+                ) { html ->
+                    if (html.contains("body")) {
+                        containerButton.visibility = View.GONE
+                        webView.visibility = View.VISIBLE
+                    } else {
+                        containerButton.visibility = View.VISIBLE
+                        webView.visibility = View.GONE
+                    }
                 }
             }
-
-//                println("Ух ты как просто!")
-//                Toast.makeText(context, "Спасибо гуглу за это", Toast.LENGTH_LONG).show()
         }
 
-
-        val web = webView.webViewClient.onPageFinished(webView, url)
-buttonStart.setOnClickListener {
-    containerButton.visibility = View.GONE
-
-    supportFragmentManager.beginTransaction()
-        .replace(R.id.containerFragment, SpinFragment.newInstance())
-        .commit()
-}
-
+        buttonStart.setOnClickListener {
+            containerButton.visibility = View.GONE
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.containerFragment, SpinFragment.newInstance())
+                .commit()
+        }
     }
 
     override fun onBackPressed() {
@@ -77,6 +68,37 @@ buttonStart.setOnClickListener {
             webView.goBack()
         } else {
             super.onBackPressed()
+        }
+    }
+
+    private fun loadUrlInWebView(url: String) {
+        webView.settings.apply {
+            builtInZoomControls = false
+            javaScriptEnabled = true
+            useWideViewPort = true
+            loadWithOverviewMode = true
+            setSupportMultipleWindows(false)
+        }
+        CookieManager.getInstance().apply {
+            setAcceptThirdPartyCookies(webView, true) // My minSdkVersion is 21
+            removeAllCookies { value ->
+                Log.d("Cookies", "Removed all cookies from CookieManager")
+            }
+        }
+
+        webView.apply {
+            isVerticalScrollBarEnabled = true
+            isHorizontalScrollBarEnabled = true
+            loadUrl(
+                url,
+                mutableMapOf(
+                    "Cookie" to "ThisIsMyCookieWithMyValues",
+                    "Accept" to "*/*",
+                    "Accept-Encoding" to "gzip, deflate",
+                    "Cache-Control" to "no-cache",
+                    "Content-type" to "application/x-www-form-urlencoded"
+                )
+            )
         }
     }
 }
