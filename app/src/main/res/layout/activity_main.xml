@@ -1,29 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/containerFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/containerFragment"
     tools:context=".MainActivity">
 
     <WebView
         android:id="@+id/webView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
     <FrameLayout
+        android:id="@+id/containerButton"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
-        android:id="@+id/containerButton">
+>
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_gravity="center_vertical|center"
-            android:layout_height="wrap_content"
-            android:text="@string/start"
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/buttonStart"
-            android:textSize="@dimen/text_size"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|center"
+            android:text="@string/start"
+            android:textSize="@dimen/text_size"
+            android:visibility="gone"
+/>
     </FrameLayout>
 
 </FrameLayout>

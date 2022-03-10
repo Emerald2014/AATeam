@@ -21,6 +21,16 @@ class SpinFragment : Fragment() {
     private var scoreP: TextView? = null
     private var scoreRes = 0
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        scoreRes = savedInstanceState?.getInt("counter", 0) ?: 0
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt("counter", scoreRes)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -31,8 +41,9 @@ class SpinFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) = with(binding) {
         super.onViewCreated(view, savedInstanceState)
+        score.text = scoreRes.toString()
         wheelImage = imageviewWheel
-        imageviewWheel.setOnClickListener { spinBottle() }
+        buttonSpin.setOnClickListener { spinBottle() }
         scoreP = score
     }
 

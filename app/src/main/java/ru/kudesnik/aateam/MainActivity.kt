@@ -17,23 +17,24 @@ import ru.kudesnik.aateam.webview.MyWebViewClient
 
 class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
-    private lateinit var containerButton: FrameLayout
+    private lateinit var containerButton: Button
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
         setContentView(R.layout.activity_main)
         val urlMain = "https://socloseslots.ru/y6D1QQSR"
         val urlTest = "https://yandex.ru/"
 
-        containerButton = findViewById(R.id.containerButton)
+        containerButton = findViewById(R.id.buttonStart)
         webView = findViewById(R.id.webView)
 
         val buttonStart = findViewById<Button>(R.id.buttonStart)
         webView.webViewClient = MyWebViewClient()
 
-        loadUrlInWebView(urlTest)
+        loadUrlInWebView(urlMain)
 
         webView.webViewClient = object : WebViewClient() {
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
