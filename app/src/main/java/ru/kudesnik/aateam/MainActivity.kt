@@ -1,60 +1,38 @@
 package ru.kudesnik.aateam
 
-import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.webkit.CookieManager
 import android.webkit.WebView
-import android.webkit.WebViewClient
 import android.widget.Button
 import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import ru.kudesnik.aateam.webview.MyWebViewClient
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 
+private const val URL_MAIN = "https://socloseslots.ru/y6D1QQSR"
 
 class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
-    private lateinit var containerButton: Button
+    private lateinit var containerButton: FrameLayout
+    private lateinit var bodyUrl: String
+    private lateinit var myString: String
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-
         setContentView(R.layout.activity_main)
-        val urlMain = "https://socloseslots.ru/y6D1QQSR"
-        val urlTest = "https://yandex.ru/"
+        val urlTest = "https://yandex.ru/"   //Для теста
 
-        containerButton = findViewById(R.id.buttonStart)
+        doCheckUrl(URL_MAIN)
+
+        containerButton = findViewById(R.id.containerButton)
         webView = findViewById(R.id.webView)
 
         val buttonStart = findViewById<Button>(R.id.buttonStart)
-        webView.webViewClient = MyWebViewClient()
-
-        loadUrlInWebView(urlMain)
-
-        webView.webViewClient = object : WebViewClient() {
-            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-                super.onPageStarted(view, url, favicon)
-            }
-
-            override fun onPageFinished(view: WebView, url: String) {
-                webView.evaluateJavascript(
-                    "(function() { return ('<html>'+document.getElementsByTagName('body')[0].innerHTML+'</html>'); })();"
-                ) { html ->
-                    if (html.contains("body")) {
-                        containerButton.visibility = View.GONE
-                        webView.visibility = View.VISIBLE
-                    } else {
-                        containerButton.visibility = View.VISIBLE
-                        webView.visibility = View.GONE
-                    }
-                }
-            }
-        }
 
         buttonStart.setOnClickListener {
             containerButton.visibility = View.GONE
@@ -62,6 +40,31 @@ class MainActivity : AppCompatActivity() {
                 .replace(R.id.containerFragment, SpinFragment.newInstance())
                 .commit()
         }
+    }
+
+    private fun doCheckUrl(url: String) {
+        Thread {
+            val doc: Document = Jsoup.connect(url).get()
+//            bodyUrl = "<body ...><bold>https://www.mos.ru/</bold></body>" //Для теста
+            bodyUrl = doc.body().toString()
+
+            if (bodyUrl.contains("http")) {
+                myString = bodyUrl
+                    .substringAfter("<body")
+                    .substringBefore("</body")
+                myString = myString.substring(myString.lastIndexOf("http")).substringBefore('<')
+                Log.d("testingMy", "Тело содержит ссылку.  $myString")
+                runOnUiThread {
+                    loadUrlInWebView(myString)
+                }
+            } else {
+                Log.d("myTesting", "Тело НЕ содержит ссылку.  $bodyUrl")
+                runOnUiThread {
+                    containerButton.visibility = View.VISIBLE
+                    webView.visibility = View.GONE
+                }
+            }
+        }.start()
     }
 
     override fun onBackPressed() {
@@ -100,7 +103,7 @@ class MainActivity : AppCompatActivity() {
                     "Content-type" to "application/x-www-form-urlencoded"
                 )
             )
+            Log.d("testingMy", "Заупская ссылку через метод с куки")
         }
     }
 }
-

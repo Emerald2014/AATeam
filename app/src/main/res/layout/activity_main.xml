@@ -15,7 +15,7 @@
         android:id="@+id/containerButton"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
->
+        android:visibility="gone">
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/buttonStart"
@@ -23,9 +23,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|center"
             android:text="@string/start"
-            android:textSize="@dimen/text_size"
-            android:visibility="gone"
-/>
+            android:textSize="@dimen/text_size" />
     </FrameLayout>
 
 </FrameLayout>
