@@ -6,12 +6,14 @@ import android.util.Log
 import android.view.View
 import android.webkit.CookieManager
 import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.Button
 import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+
 
 private const val URL_MAIN = "https://socloseslots.ru/y6D1QQSR"
 
@@ -28,9 +30,8 @@ class MainActivity : AppCompatActivity() {
         val urlTest = "https://yandex.ru/"   //Для теста
 
         doCheckUrl(URL_MAIN)
-
         containerButton = findViewById(R.id.containerButton)
-        webView = findViewById(R.id.webView)
+//        loadUrlInWebView(URL_MAIN)
 
         val buttonStart = findViewById<Button>(R.id.buttonStart)
 
@@ -44,8 +45,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun doCheckUrl(url: String) {
         Thread {
-            val doc: Document = Jsoup.connect(url).get()
-//            bodyUrl = "<body ...><bold>https://www.mos.ru/</bold></body>" //Для теста
+            val doc: Document = Jsoup.connect(url)
+                .userAgent("Chrome/79.0.3945.130 Safari/537.36")
+                .get()
+            Log.d("testingMy", "  ${doc.body()}")
+
+//            bodyUrl = "<body ...><bold>https://www.mos.ru</bold></body>" //Для теста
             bodyUrl = doc.body().toString()
 
             if (bodyUrl.contains("http")) {
@@ -76,6 +81,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadUrlInWebView(url: String) {
+        webView = findViewById(R.id.webViewL)
+        webView.webViewClient = object : WebViewClient() {
+            override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                return false
+            }
+        }
+
         webView.settings.apply {
             builtInZoomControls = false
             javaScriptEnabled = true
