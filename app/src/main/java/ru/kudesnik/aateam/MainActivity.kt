@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val urlTest = "https://yandex.ru/"   //Для теста
-
+        webView = findViewById<WebView>(R.id.webViewL)
         doCheckUrl(URL_MAIN)
         containerButton = findViewById(R.id.containerButton)
 //        loadUrlInWebView(URL_MAIN)
@@ -88,18 +88,27 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        webView.webViewClient = object : WebViewClient() {
+            override fun onReceivedError(
+                view: WebView,
+                errorCode: Int,
+                description: String,
+                failingUrl: String
+            ) {
+
+            }
+
+            override fun onPageFinished(view: WebView, url: String) {
+                CookieManager.getInstance().flush();
+            }
+        }
+
         webView.settings.apply {
             builtInZoomControls = false
             javaScriptEnabled = true
             useWideViewPort = true
             loadWithOverviewMode = true
             setSupportMultipleWindows(false)
-        }
-        CookieManager.getInstance().apply {
-            setAcceptThirdPartyCookies(webView, true) // My minSdkVersion is 21
-            removeAllCookies { value ->
-                Log.d("Cookies", "Removed all cookies from CookieManager")
-            }
         }
 
         webView.apply {
